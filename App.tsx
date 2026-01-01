@@ -156,6 +156,7 @@ const App: React.FC = () => {
                 installerSummary={installerSummary}
                 onAddKitchen={handleAddKitchen}
                 onOpenDrilldown={handleOpenDrilldown}
+                onNavigateToTasks={() => setCurrentTab('Tareas a Realizar')}
               />
             )}
             {currentTab === 'Tareas a Realizar' && (

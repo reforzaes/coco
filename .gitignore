@@ -7,12 +7,17 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencias y Compilación
 node_modules
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# PROTECCIÓN PARA AI STUDIO
+# Esto evita que AI Studio borre tus workflows al sincronizar
+!.github/workflows/node.js.yml
+
+# Archivos del Editor
 .vscode/*
 !.vscode/extensions.json
 .idea

@@ -11,14 +11,29 @@ interface DashboardProps {
   incidents: Incident[];
   onAddKitchen: (kitchen: Omit<Kitchen, 'id'>) => void;
   onOpenDrilldown: (type: 'seller' | 'installer', label: string) => void;
+  onNavigateToTasks: () => void;
 }
 
-const SummaryCard: React.FC<{ title: string; value: string | number; description: string; colorClass: string }> = ({ title, value, description, colorClass }) => (
-  <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border flex flex-col relative overflow-hidden group transition-all hover:shadow-xl">
+const SummaryCard: React.FC<{ 
+  title: string; 
+  value: string | number; 
+  description: string; 
+  colorClass: string;
+  onClick?: () => void;
+}> = ({ title, value, description, colorClass, onClick }) => (
+  <div 
+    onClick={onClick}
+    className={`bg-white p-8 rounded-[2.5rem] shadow-sm border flex flex-col relative overflow-hidden group transition-all hover:shadow-xl ${onClick ? 'cursor-pointer active:scale-95' : ''}`}
+  >
     <div className={`absolute top-0 right-0 w-24 h-24 ${colorClass} opacity-10 rounded-bl-full -mr-8 -mt-8 group-hover:scale-110 transition-transform`}></div>
     <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">{title}</h3>
     <p className="text-5xl font-black text-gray-900 tracking-tighter mb-1 leading-none">{value}</p>
     <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{description}</p>
+    {onClick && (
+      <div className="absolute bottom-4 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest">Ir a Tareas →</span>
+      </div>
+    )}
   </div>
 );
 
@@ -27,7 +42,8 @@ const Dashboard: React.FC<DashboardProps> = ({
   sellerSummary,
   installerSummary,
   incidents,
-  onOpenDrilldown
+  onOpenDrilldown,
+  onNavigateToTasks
 }) => {
   const totalKitchens = kitchens.length;
   
@@ -68,10 +84,17 @@ const Dashboard: React.FC<DashboardProps> = ({
           value={`${pendingRatio}%`}
           description="% Gestiones Activas"
           colorClass="bg-blue-500"
+          onClick={onNavigateToTasks}
         />
       </div>
 
-      {/* Secciones de Tablas de Profesionales */}
+      {/* Secciones de Análisis de Velocidad y Origen (ARRIBA) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <ResolutionSpeedAnalysis incidents={incidents} />
+        <IncidentCausePieChart incidents={incidents.filter(i => i.cause !== IncidentCause.OTHER)} />
+      </div>
+
+      {/* Secciones de Tablas de Profesionales (ABAJO) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border">
           <h2 className="text-xl font-black mb-10 text-gray-800 uppercase tracking-tighter flex items-center gap-4">
@@ -138,12 +161,6 @@ const Dashboard: React.FC<DashboardProps> = ({
             </table>
           </div>
         </div>
-      </div>
-
-      {/* Nueva sección de Análisis de Velocidad y Origen */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <ResolutionSpeedAnalysis incidents={incidents} />
-        <IncidentCausePieChart incidents={incidents.filter(i => i.cause !== IncidentCause.OTHER)} />
       </div>
     </div>
   );
