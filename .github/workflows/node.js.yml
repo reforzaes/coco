@@ -20,10 +20,14 @@ jobs:
     - name: 3. Instalar dependencias
       run: npm install
 
-    - name: 4. Compilar proyecto
+    # ESTE ES EL PASO NUEVO PARA CORREGIR EL ERROR
+    - name: 4. Instalar Vite manualmente
+      run: npm install -D vite @vitejs/plugin-react
+
+    - name: 5. Compilar proyecto
       run: npm run build
 
-    - name: 5. 🚀 Subir a Hostinger
+    - name: 6. 🚀 Subir a Hostinger
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ${{ secrets.FTPSERVER }}
