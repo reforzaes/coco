@@ -16,14 +16,15 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20
-        cache: 'npm' # Ayuda a que las instalaciones sean más rápidas y fiables
 
-    - name: 3. Instalar dependencias
-      # Usamos ci para una instalación limpia y exacta según tu package-lock.json
-      run: npm install 
+    - name: 3. Instalar dependencias y Vite
+      # Instalamos todo y forzamos la presencia de Vite por si acaso
+      run: |
+        npm install
+        npm install -D vite @vitejs/plugin-react
 
     - name: 4. Compilar proyecto
-      # Usamos npx para forzar la ejecución del vite local instalado
+      # Usamos npx para asegurar que encuentre el ejecutable de vite
       run: npx vite build
 
     - name: 5. 🚀 Subir SOLO la compilación a Hostinger
