@@ -5,9 +5,6 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      // ESTA LÍNEA ES LA QUE CORRIGE EL ERROR 404 EN HOSTINGER
-      base: '/cocinas1/', 
-      
       server: {
         port: 3000,
         host: '0.0.0.0',
