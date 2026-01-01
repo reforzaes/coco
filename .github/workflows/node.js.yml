@@ -1,0 +1,35 @@
+name: Build y Deploy Automático a Hostinger
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 1. Obtener código
+      uses: actions/checkout@v4
+
+    - name: 2. Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: 3. Instalar dependencias
+      run: npm install
+
+    - name: 4. Compilar proyecto
+      run: npm run build
+
+    - name: 5. 🚀 Subir a Hostinger
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTPSERVER }}
+        username: ${{ secrets.FTPUSER }}
+        password: ${{ secrets.FTPPASS }}
+        local-dir: ./dist/
+        # Tu FTP de Hostinger ya apunta a /cocinas1, por eso usamos ./
+        server-dir: ./ 
+        delete-clean: true
