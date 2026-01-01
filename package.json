@@ -1,0 +1,32 @@
+
+{
+  "name": "leroy-merlin-kitchen-dashboard",
+  "version": "1.0.0",
+  "description": "Dashboard para la gestión de instalaciones de cocinas de Leroy Merlin con persistencia en MySQL.",
+  "main": "index.tsx",
+  "scripts": {
+    "start": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview"
+  },
+  "keywords": [
+    "leroy-merlin",
+    "dashboard",
+    "react",
+    "typescript",
+    "mysql"
+  ],
+  "author": "Leroy Merlin",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "uuid": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.7.0"
+  }
+}

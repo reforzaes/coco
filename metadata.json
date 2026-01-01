@@ -1,0 +1,5 @@
+{
+  "name": "Registro Cocinas prueba",
+  "description": "A dashboard to register and manage kitchen installations for Leroy Merlin, including summaries, task management, and incident tracking.",
+  "requestFramePermissions": []
+}
