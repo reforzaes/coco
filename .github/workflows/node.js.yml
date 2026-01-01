@@ -1,4 +1,4 @@
-name: Build y Deploy Automático a Hostinger
+name: Build y Deploy Automático
 
 on:
   push:
@@ -30,6 +30,5 @@ jobs:
         username: ${{ secrets.FTPUSER }}
         password: ${{ secrets.FTPPASS }}
         local-dir: ./dist/
-        # Tu FTP de Hostinger ya apunta a /cocinas1, por eso usamos ./
-        server-dir: ./ 
+        server-dir: ./
         delete-clean: true
