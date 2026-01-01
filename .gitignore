@@ -1,3 +1,4 @@
+
 # Logs
 logs
 *.log
@@ -16,7 +17,6 @@ dist-ssr
 # PROTECCIÓN PARA AI STUDIO
 # Esto evita que AI Studio borre tus workflows al sincronizar
 !.github/workflows/node.js.yml
-.github/
 
 # Archivos del Editor
 .vscode/*
@@ -28,4 +28,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Protección de configuración de despliegue
 .github/

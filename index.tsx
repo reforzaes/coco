@@ -41,10 +41,8 @@ const App = () => {
           }
         }
         
-        // Fix: Consolidate 'history' property logic into a single entry in the object literal to avoid duplicate keys.
         return {
           ...inc,
-          // Si history está vacío pero observation tiene algo, inicializamos el history con esa observación
           history: history.length === 0 && inc.observation ? [{
             text: inc.observation,
             date: inc.createdAt || new Date().toISOString(),
@@ -120,7 +118,6 @@ const App = () => {
     setIsLoading(true);
     try {
       const formattedUpdates = { ...updates };
-      // Redundancia: Si estamos enviando history, ponemos la última nota también en 'observation'
       if (updates.history && Array.isArray(updates.history) && updates.history.length > 0) {
         formattedUpdates.observation = updates.history[updates.history.length - 1].text;
         formattedUpdates.history = JSON.stringify(updates.history);
@@ -170,15 +167,47 @@ const App = () => {
           </div>
         ) : (
           <>
-            {currentTab === 'Portada' && <Dashboard kitchens={filteredKitchens} incidents={filteredIncidents} sellerSummary={sellerSummary} installerSummary={installerSummary} onAddKitchen={handleAddKitchen} onOpenDrilldown={(type, label) => setDrilldownFilter({type, label})} />}
-            {currentTab === 'Tareas' && <Tasks kitchens={kitchens} incidents={filteredIncidents} onAddKitchen={handleAddKitchen} onAddIncident={handleAddIncident} onUpdateIncident={handleUpdateIncident} />}
-            {currentTab === 'Relación Proyectos' && <KitchenList kitchens={filteredKitchens} incidents={incidents} />}
+            {currentTab === 'Portada' && (
+              <Dashboard 
+                kitchens={filteredKitchens} 
+                incidents={filteredIncidents} 
+                sellerSummary={sellerSummary} 
+                installerSummary={installerSummary} 
+                onAddKitchen={handleAddKitchen} 
+                onOpenDrilldown={(type, label) => setDrilldownFilter({type, label})}
+                onNavigateToTasks={() => setCurrentTab('Tareas')}
+              />
+            )}
+            {currentTab === 'Tareas' && (
+              <Tasks 
+                kitchens={kitchens} 
+                incidents={filteredIncidents} 
+                onAddKitchen={handleAddKitchen} 
+                onAddIncident={handleAddIncident} 
+                onUpdateIncident={handleUpdateIncident} 
+              />
+            )}
+            {currentTab === 'Relación Proyectos' && (
+              <KitchenList 
+                kitchens={filteredKitchens} 
+                incidents={incidents} 
+              />
+            )}
           </>
         )}
       </main>
 
-      {drilldownFilter && <FilteredListModal filter={drilldownFilter} allKitchens={filteredKitchens} allIncidents={filteredIncidents} onClose={() => setDrilldownFilter(null)} />}
-      <footer className="p-12 text-center text-[10px] font-black text-gray-300 uppercase tracking-[0.5em] border-t bg-white">© 2025 LEROY MERLIN - KITCHEN INTELLIGENCE SYSTEM</footer>
+      {drilldownFilter && (
+        <FilteredListModal 
+          filter={drilldownFilter} 
+          allKitchens={filteredKitchens} 
+          allIncidents={filteredIncidents} 
+          onClose={() => setDrilldownFilter(null)} 
+        />
+      )}
+      <footer className="p-12 text-center text-[10px] font-black text-gray-300 uppercase tracking-[0.5em] border-t bg-white">
+        © 2025 LEROY MERLIN - KITCHEN INTELLIGENCE SYSTEM
+      </footer>
     </div>
   );
 };
