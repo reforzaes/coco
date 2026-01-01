@@ -18,18 +18,16 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 24
+        cache: 'npm'
 
     - name: Instalar dependencias y Compilar
-      run: |
-        # Instalamos ignorando conflictos de versiones locales
-        npm install
-        npm install -D vite @vitejs/plugin-react
-        npm run build
+      run: npm install
 
-        
-        # Generamos la carpeta dist ignorando errores de TypeScript que bloquean el proceso
-        # Esto asegura que el index.html se cree sí o sí
-        # npx vite build
+    - name: Instalar dependencias y Compilar
+      run: npm install -D vite @vitejs/plugin-react
+
+    - name: Instalar dependencias y Compilar
+      run: npm run build
 
     - name: Guardar Web Terminada (Artifact)
       uses: actions/upload-artifact@v4
