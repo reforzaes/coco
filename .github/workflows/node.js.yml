@@ -16,13 +16,15 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20
+        cache: 'npm' # Ayuda a que las instalaciones sean más rápidas y fiables
 
     - name: 3. Instalar dependencias
-      run: npm install
+      # Usamos ci para una instalación limpia y exacta según tu package-lock.json
+      run: npm install 
 
     - name: 4. Compilar proyecto
-      # Esto genera la carpeta 'dist' con los archivos listos para la web
-      run: npm run build
+      # Usamos npx para forzar la ejecución del vite local instalado
+      run: npx vite build
 
     - name: 5. 🚀 Subir SOLO la compilación a Hostinger
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -30,7 +32,5 @@ jobs:
         server: ${{ secrets.FTPSERVER }}
         username: ${{ secrets.FTPUSER }}
         password: ${{ secrets.FTPPASS }}
-        # CAMBIO CLAVE: Especificamos que solo suba lo que hay dentro de 'dist'
         local-dir: ./dist/
-        # Como tu FTP ya entra en /cocinas1, lo dejamos en la raíz del FTP
         server-dir: ./
