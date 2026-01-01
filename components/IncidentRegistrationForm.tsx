@@ -15,6 +15,8 @@ const IncidentRegistrationForm: React.FC<IncidentRegistrationFormProps> = ({
   initialKitchenId,
 }) => {
   const [authorLdap, setAuthorLdap] = useState<string>('');
+  const [ldapSearch, setLdapSearch] = useState<string>('');
+  const [showLdapResults, setShowLdapResults] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedKitchen, setSelectedKitchen] = useState<Kitchen | null>(null);
   const [description, setDescription] = useState<string>('');
@@ -25,8 +27,18 @@ const IncidentRegistrationForm: React.FC<IncidentRegistrationFormProps> = ({
   const [showResults, setShowResults] = useState<boolean>(false);
   
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const ldapWrapperRef = useRef<HTMLDivElement>(null);
 
   const authorData = useMemo(() => USER_LDAP_MAP[authorLdap] || null, [authorLdap]);
+
+  // Búsqueda de usuarios por nombre o LDAP
+  const ldapSearchResults = useMemo(() => {
+    if (ldapSearch.length < 2) return [];
+    const search = ldapSearch.toLowerCase();
+    return Object.entries(USER_LDAP_MAP).filter(([ldap, data]) => 
+      data.name.toLowerCase().includes(search) || ldap.includes(search)
+    ).map(([ldap, data]) => ({ ldap, ...data }));
+  }, [ldapSearch]);
 
   // Si el LDAP es de un vendedor conocido, auto-asignamos la causa y el vendedor
   useEffect(() => {
@@ -58,6 +70,9 @@ const IncidentRegistrationForm: React.FC<IncidentRegistrationFormProps> = ({
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         setShowResults(false);
       }
+      if (ldapWrapperRef.current && !ldapWrapperRef.current.contains(event.target as Node)) {
+        setShowLdapResults(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -71,12 +86,19 @@ const IncidentRegistrationForm: React.FC<IncidentRegistrationFormProps> = ({
     setShowResults(false);
   };
 
+  const handleSelectLdap = (ldap: string) => {
+    setAuthorLdap(ldap);
+    setLdapSearch(ldap);
+    setShowLdapResults(false);
+  };
+
   const resetForm = () => {
     setSearchQuery('');
     setSelectedKitchen(null);
     setDescription('');
     setObservation('');
     setAuthorLdap('');
+    setLdapSearch('');
     setCause(IncidentCause.OTHER);
     setAssignedToSeller(null);
     setAssignedToInstaller(null);
@@ -121,25 +143,50 @@ const IncidentRegistrationForm: React.FC<IncidentRegistrationFormProps> = ({
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1">
-            <label htmlFor="authorLdap" className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">Tu LDAP</label>
+          
+          <div className="md:col-span-1 relative" ref={ldapWrapperRef}>
+            <label htmlFor="ldapSearchInc" className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">Tu Identificación (Nombre o LDAP)</label>
             <div className="relative">
               <input
                 type="text"
-                id="authorLdap"
-                className={`w-full border-2 rounded-2xl p-4 font-bold text-gray-700 outline-none transition-all ${authorData ? 'border-emerald-500 bg-emerald-50' : 'border-gray-100'}`}
-                value={authorLdap}
-                onChange={(e) => setAuthorLdap(e.target.value)}
-                placeholder="Ej: 30104750"
+                id="ldapSearchInc"
+                autoComplete="off"
+                className={`w-full border-2 rounded-2xl p-4 font-bold text-gray-700 outline-none transition-all ${authorData ? 'border-emerald-500 bg-emerald-50' : 'border-gray-100 focus:border-emerald-200'}`}
+                value={ldapSearch}
+                onChange={(e) => {
+                  setLdapSearch(e.target.value);
+                  setShowLdapResults(true);
+                  if (USER_LDAP_MAP[e.target.value]) setAuthorLdap(e.target.value);
+                  else if (authorLdap) setAuthorLdap('');
+                }}
+                onFocus={() => setShowLdapResults(true)}
+                placeholder="Busca por nombre..."
                 required
               />
               {authorData && (
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col items-end">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col items-end pointer-events-none">
                   <span className="text-[10px] font-black text-emerald-600 uppercase leading-none">{authorData.name}</span>
                   <span className="text-[7px] text-emerald-400 font-bold uppercase">{authorData.role}</span>
                 </div>
               )}
             </div>
+            {showLdapResults && ldapSearchResults.length > 0 && (
+              <div className="absolute z-[110] left-0 right-0 top-full mt-2 bg-white border-2 border-emerald-500 rounded-2xl shadow-2xl overflow-hidden max-h-48 overflow-y-auto">
+                {ldapSearchResults.map((u) => (
+                  <div 
+                    key={u.ldap} 
+                    onClick={() => handleSelectLdap(u.ldap)}
+                    className="p-3 hover:bg-emerald-50 cursor-pointer border-b last:border-b-0 flex justify-between items-center group"
+                  >
+                    <div className="flex flex-col">
+                      <span className="font-black text-gray-800 text-xs group-hover:text-emerald-700">{u.name}</span>
+                      <span className="text-[9px] text-gray-400 font-bold uppercase">{u.role}</span>
+                    </div>
+                    <span className="bg-emerald-100 text-emerald-700 text-[9px] font-black px-2 py-0.5 rounded">{u.ldap}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="relative md:col-span-1" ref={wrapperRef}>

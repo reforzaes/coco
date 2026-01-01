@@ -151,10 +151,13 @@ const FilteredListModal: React.FC<FilteredListModalProps> = ({ filter, allKitche
                                           {(notesExpanded ? history : history.slice(-1)).map((h, i) => (
                                             <div key={i} className="flex flex-col bg-white p-3 rounded-xl border border-emerald-100 text-[10px]">
                                               <div className="flex justify-between items-center mb-1">
-                                                <span className="text-gray-400 font-black">{h.date ? new Date(h.date).toLocaleString() : 'Sin fecha'}</span>
+                                                <div className="flex flex-col">
+                                                  <span className="text-gray-900 font-black uppercase text-[8px]">{h.authorName || 'Histórico'}</span>
+                                                  <span className="text-gray-400 font-bold text-[7px]">{h.date ? new Date(h.date).toLocaleString() : 'Sin fecha'}</span>
+                                                </div>
                                                 <span className="text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-black uppercase text-[7px]">{h.statusAtTime}</span>
                                               </div>
-                                              <p className="italic text-gray-600 font-medium">{h.text}</p>
+                                              <p className="italic text-gray-600 font-medium mt-1 leading-relaxed">{h.text}</p>
                                             </div>
                                           ))}
                                           {history.length > 1 && (

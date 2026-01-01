@@ -1,6 +1,8 @@
-import React from 'react';
+
+import React, { useMemo } from 'react';
 import { Kitchen, SummaryData, Incident, IncidentCause, TaskStatus } from '../types';
 import IncidentCausePieChart from './IncidentCausePieChart';
+import ResolutionSpeedAnalysis from './ResolutionSpeedAnalysis';
 
 interface DashboardProps {
   kitchens: Kitchen[];
@@ -29,12 +31,10 @@ const Dashboard: React.FC<DashboardProps> = ({
 }) => {
   const totalKitchens = kitchens.length;
   
-  // 1. Ratio Histórico (Cualquier cocina que haya tenido incidencia alguna vez)
   const kitchenIdsWithHistoricalIncidents = new Set(incidents.map(i => i.kitchenId));
   const historicalAffectedCount = kitchens.filter(k => kitchenIdsWithHistoricalIncidents.has(k.id)).length;
   const historicalRatio = totalKitchens > 0 ? ((historicalAffectedCount / totalKitchens) * 100).toFixed(1) : '0';
 
-  // 2. Ratio Pendientes (Cocinas con incidencias NO completadas)
   const kitchenIdsWithActiveIncidents = new Set(
     incidents.filter(i => i.status !== TaskStatus.COMPLETED).map(i => i.kitchenId)
   );
@@ -43,6 +43,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="space-y-12 animate-fade-in">
+      {/* Cards de resumen superior */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <SummaryCard
           title="Instalaciones"
@@ -70,6 +71,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         />
       </div>
 
+      {/* Secciones de Tablas de Profesionales */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border">
           <h2 className="text-xl font-black mb-10 text-gray-800 uppercase tracking-tighter flex items-center gap-4">
@@ -137,8 +139,10 @@ const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
       </div>
-      
-      <div className="flex justify-center pt-8">
+
+      {/* Nueva sección de Análisis de Velocidad y Origen */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <ResolutionSpeedAnalysis incidents={incidents} />
         <IncidentCausePieChart incidents={incidents.filter(i => i.cause !== IncidentCause.OTHER)} />
       </div>
     </div>

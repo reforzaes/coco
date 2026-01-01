@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Kitchen } from '../types';
 import { SELLERS, INSTALLERS, USER_LDAP_MAP } from '../constants';
 
@@ -9,6 +9,8 @@ interface KitchenRegistrationFormProps {
 
 const KitchenRegistrationForm: React.FC<KitchenRegistrationFormProps> = ({ onAddKitchen }) => {
   const [authorLdap, setAuthorLdap] = useState<string>('');
+  const [ldapSearch, setLdapSearch] = useState<string>('');
+  const [showLdapResults, setShowLdapResults] = useState<boolean>(false);
   const [orderNumber, setOrderNumber] = useState<string>('');
   const [clientName, setClientName] = useState<string>('');
   const [seller, setSeller] = useState<string>(SELLERS[0]);
@@ -17,7 +19,27 @@ const KitchenRegistrationForm: React.FC<KitchenRegistrationFormProps> = ({ onAdd
     new Date().toISOString().split('T')[0]
   );
 
+  const ldapWrapperRef = useRef<HTMLDivElement>(null);
   const authorData = useMemo(() => USER_LDAP_MAP[authorLdap] || null, [authorLdap]);
+
+  // Búsqueda de usuarios por nombre o LDAP
+  const ldapSearchResults = useMemo(() => {
+    if (ldapSearch.length < 2) return [];
+    const search = ldapSearch.toLowerCase();
+    return Object.entries(USER_LDAP_MAP).filter(([ldap, data]) => 
+      data.name.toLowerCase().includes(search) || ldap.includes(search)
+    ).map(([ldap, data]) => ({ ldap, ...data }));
+  }, [ldapSearch]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ldapWrapperRef.current && !ldapWrapperRef.current.contains(event.target as Node)) {
+        setShowLdapResults(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Si el usuario es un vendedor, forzamos su nombre en el campo seller y bloqueamos edición
   useEffect(() => {
@@ -25,6 +47,12 @@ const KitchenRegistrationForm: React.FC<KitchenRegistrationFormProps> = ({ onAdd
       setSeller(authorData.name);
     }
   }, [authorData]);
+
+  const handleSelectLdap = (ldap: string) => {
+    setAuthorLdap(ldap);
+    setLdapSearch(ldap);
+    setShowLdapResults(false);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +76,6 @@ const KitchenRegistrationForm: React.FC<KitchenRegistrationFormProps> = ({ onAdd
       installationDate,
     });
 
-    // Resetear campos de pedido pero mantener LDAP y profesionales para agilidad
     setOrderNumber('');
     setClientName('');
     alert('Proyecto registrado con éxito.');
@@ -61,17 +88,24 @@ const KitchenRegistrationForm: React.FC<KitchenRegistrationFormProps> = ({ onAdd
       <h2 className="text-2xl font-black mb-6 text-gray-800 uppercase tracking-tighter">Registrar Nueva Cocina</h2>
       <form onSubmit={handleSubmit} className="space-y-5">
         
-        {/* Sección de Identificación por LDAP */}
-        <div className="bg-emerald-50/50 p-5 rounded-3xl border border-emerald-100 mb-6 transition-all">
-          <label htmlFor="authorLdap" className="block text-[10px] font-black text-emerald-700 uppercase mb-2 tracking-widest">Tu LDAP (Identificación)</label>
+        {/* Sección de Identificación por LDAP con Buscador por Nombre */}
+        <div className="bg-emerald-50/50 p-5 rounded-3xl border border-emerald-100 mb-6 transition-all relative" ref={ldapWrapperRef}>
+          <label htmlFor="ldapSearch" className="block text-[10px] font-black text-emerald-700 uppercase mb-2 tracking-widest">Tu Identificación (Nombre o LDAP)</label>
           <div className="relative">
             <input
               type="text"
-              id="authorLdap"
+              id="ldapSearch"
+              autoComplete="off"
               className={`w-full border-2 rounded-2xl p-4 font-bold text-gray-700 outline-none transition-all ${authorData ? 'border-emerald-500 bg-white' : 'border-gray-200 bg-white focus:border-emerald-300'}`}
-              value={authorLdap}
-              onChange={(e) => setAuthorLdap(e.target.value)}
-              placeholder="Ej: 30104750"
+              value={ldapSearch}
+              onChange={(e) => {
+                setLdapSearch(e.target.value);
+                setShowLdapResults(true);
+                if (USER_LDAP_MAP[e.target.value]) setAuthorLdap(e.target.value);
+                else if (authorLdap) setAuthorLdap('');
+              }}
+              onFocus={() => setShowLdapResults(true)}
+              placeholder="Escribe tu nombre o LDAP..."
               required
             />
             {authorData && (
@@ -81,6 +115,24 @@ const KitchenRegistrationForm: React.FC<KitchenRegistrationFormProps> = ({ onAdd
               </div>
             )}
           </div>
+
+          {showLdapResults && ldapSearchResults.length > 0 && (
+            <div className="absolute z-[110] left-5 right-5 top-full mt-2 bg-white border-2 border-emerald-500 rounded-2xl shadow-2xl overflow-hidden max-h-48 overflow-y-auto animate-in slide-in-from-top-2">
+              {ldapSearchResults.map((u) => (
+                <div 
+                  key={u.ldap} 
+                  onClick={() => handleSelectLdap(u.ldap)}
+                  className="p-3 hover:bg-emerald-50 cursor-pointer border-b last:border-b-0 flex justify-between items-center group"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-black text-gray-800 text-xs group-hover:text-emerald-700">{u.name}</span>
+                    <span className="text-[9px] text-gray-400 font-bold uppercase">{u.role}</span>
+                  </div>
+                  <span className="bg-emerald-100 text-emerald-700 text-[9px] font-black px-2 py-0.5 rounded">{u.ldap}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -169,8 +221,8 @@ const KitchenRegistrationForm: React.FC<KitchenRegistrationFormProps> = ({ onAdd
           >
             Dar de Alta Proyecto
           </button>
-          {!authorData && authorLdap.length > 0 && (
-            <p className="text-center text-[9px] font-bold text-red-500 uppercase mt-3 animate-pulse">LDAP No reconocido en el sistema</p>
+          {!authorData && ldapSearch.length > 0 && (
+            <p className="text-center text-[9px] font-bold text-red-500 uppercase mt-3 animate-pulse">Usuario No reconocido en el sistema</p>
           )}
         </div>
       </form>
