@@ -138,9 +138,7 @@ const IncidentRegistrationForm: React.FC<IncidentRegistrationFormProps> = ({
   };
 
   return (
-    <div className="bg-white p-8 rounded-[2rem] shadow-sm border mb-10">
-      <h2 className="text-2xl font-black mb-6 text-gray-800 uppercase tracking-tighter">Registrar Incidencia o Gestión</h2>
-      
+    <div className="bg-white p-4 md:p-8">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           

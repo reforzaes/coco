@@ -15,21 +15,16 @@ interface TasksProps {
 }
 
 const Tasks: React.FC<TasksProps> = ({ kitchens, incidents, onAddKitchen, onAddIncident, onUpdateIncident }) => {
-  const [selectedSeller, setSelectedSeller] = useState<string>('');
-  const [selectedInstaller, setSelectedInstaller] = useState<string>('');
+  const [activeRegTab, setActiveRegTab] = useState<'kitchen' | 'incident' | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string>('');
-  const [filterLogistics, setFilterLogistics] = useState<boolean>(false);
   const [hideCompleted, setHideCompleted] = useState<boolean>(true);
 
   const filteredIncidents = useMemo(() => {
     return incidents
       .filter(incident => {
-        const matchesSeller = selectedSeller ? incident.assignedToSeller === selectedSeller : true;
-        const matchesInstaller = selectedInstaller ? incident.assignedToInstaller === selectedInstaller : true;
         const matchesStatus = selectedStatus ? incident.status === selectedStatus : true;
-        const matchesLogistics = filterLogistics ? incident.cause === IncidentCause.LOGISTICS : true;
         const matchesCompleted = hideCompleted ? incident.status !== TaskStatus.COMPLETED : true;
-        return matchesSeller && matchesInstaller && matchesStatus && matchesLogistics && matchesCompleted;
+        return matchesStatus && matchesCompleted;
       })
       .sort((a, b) => {
         const kitchenA = kitchens.find(k => k.id === a.kitchenId);
@@ -37,7 +32,7 @@ const Tasks: React.FC<TasksProps> = ({ kitchens, incidents, onAddKitchen, onAddI
         if (!kitchenA || !kitchenB) return 0;
         return new Date(kitchenA.installationDate).getTime() - new Date(kitchenB.installationDate).getTime();
       });
-  }, [incidents, selectedSeller, selectedInstaller, selectedStatus, filterLogistics, hideCompleted, kitchens]);
+  }, [incidents, selectedStatus, hideCompleted, kitchens]);
 
   // Resumen de carga lateral
   const pendingIncidents = incidents.filter(i => i.status !== TaskStatus.COMPLETED);
@@ -56,20 +51,58 @@ const Tasks: React.FC<TasksProps> = ({ kitchens, incidents, onAddKitchen, onAddI
     })).sort((a, b) => b.count - a.count);
   }, [pendingIncidents]);
 
+  const toggleTab = (tab: 'kitchen' | 'incident') => {
+    setActiveRegTab(prev => prev === tab ? null : tab);
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-12 animate-fade-in">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div>
-           <KitchenRegistrationForm onAddKitchen={onAddKitchen} />
+      
+      {/* Panel Unificado de Registro */}
+      <div className="bg-white rounded-[3rem] shadow-sm border overflow-hidden">
+        <div className="flex border-b border-gray-100">
+          <button 
+            onClick={() => toggleTab('kitchen')}
+            className={`flex-1 py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${activeRegTab === 'kitchen' ? 'bg-emerald-50 text-emerald-600 border-b-4 border-emerald-600' : 'bg-gray-50 text-gray-400 hover:bg-white hover:text-gray-600'}`}
+          >
+            {activeRegTab === 'kitchen' ? '🔽 Alta Nueva Cocina' : '▶️ Alta Nueva Cocina'}
+          </button>
+          <button 
+            onClick={() => toggleTab('incident')}
+            className={`flex-1 py-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${activeRegTab === 'incident' ? 'bg-emerald-50 text-emerald-600 border-b-4 border-emerald-600' : 'bg-gray-50 text-gray-400 hover:bg-white hover:text-gray-600'}`}
+          >
+            {activeRegTab === 'incident' ? '🔽 Nueva Gestión / Incidencia' : '▶️ Nueva Gestión / Incidencia'}
+          </button>
         </div>
-        <div>
-           <IncidentRegistrationForm kitchens={kitchens} onAddIncident={onAddIncident} />
-        </div>
+        
+        {activeRegTab && (
+          <div className="p-2 md:p-6 bg-white animate-in slide-in-from-top-4 duration-300 relative">
+            <button 
+              onClick={() => setActiveRegTab(null)}
+              className="absolute top-4 right-6 text-gray-300 hover:text-red-500 font-black text-2xl"
+            >
+              ×
+            </button>
+            {activeRegTab === 'kitchen' ? (
+              <KitchenRegistrationForm onAddKitchen={onAddKitchen} />
+            ) : (
+              <IncidentRegistrationForm kitchens={kitchens} onAddIncident={onAddIncident} />
+            )}
+            <div className="flex justify-center pb-4">
+              <button 
+                onClick={() => setActiveRegTab(null)}
+                className="text-[9px] font-black text-gray-300 uppercase tracking-widest hover:text-gray-600 transition-colors"
+              >
+                Cerrar Formulario
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Lista Principal */}
-        <div className="flex-grow bg-white p-8 rounded-[3rem] shadow-sm border">
+        <div className="flex-grow bg-white p-6 md:p-10 rounded-[3rem] shadow-sm border">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
             <div>
               <h2 className="text-2xl font-black text-gray-800 uppercase tracking-tighter">Seguimiento de Gestiones</h2>
@@ -97,17 +130,19 @@ const Tasks: React.FC<TasksProps> = ({ kitchens, incidents, onAddKitchen, onAddI
             </div>
           </div>
 
-          <TaskList
-            incidents={filteredIncidents}
-            kitchens={kitchens}
-            onUpdateIncident={onUpdateIncident}
-          />
+          <div className="overflow-hidden">
+             <TaskList
+                incidents={filteredIncidents}
+                kitchens={kitchens}
+                onUpdateIncident={onUpdateIncident}
+              />
+          </div>
         </div>
 
         {/* Sidebar de Resumen */}
         <div className="lg:w-80 shrink-0 space-y-6">
           <div className="bg-gray-900 text-white p-8 rounded-[2.5rem] shadow-xl">
-            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-6 text-emerald-400">Carga por Vendedor</h3>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-6 text-emerald-400">Tareas pendientes por vendedor</h3>
             <div className="space-y-4">
               {sellerLoad.map(item => (
                 <div key={item.name} className="flex justify-between items-center group">
@@ -121,7 +156,7 @@ const Tasks: React.FC<TasksProps> = ({ kitchens, incidents, onAddKitchen, onAddI
           </div>
 
           <div className="bg-white p-8 rounded-[2.5rem] border shadow-sm">
-            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-6 text-blue-600">Carga por Instalador</h3>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-6 text-blue-600">Tareas pendientes por instalador</h3>
             <div className="space-y-4">
               {installerLoad.map(item => (
                 <div key={item.name} className="flex justify-between items-center">

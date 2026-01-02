@@ -84,8 +84,7 @@ const KitchenRegistrationForm: React.FC<KitchenRegistrationFormProps> = ({ onAdd
   const isSellerUser = authorData?.role === 'Vendedor';
 
   return (
-    <div className="bg-white p-8 rounded-[2rem] shadow-sm border h-full">
-      <h2 className="text-2xl font-black mb-6 text-gray-800 uppercase tracking-tighter">Registrar Nueva Cocina</h2>
+    <div className="bg-white p-4 md:p-8 h-full">
       <form onSubmit={handleSubmit} className="space-y-5">
         
         {/* Sección de Identificación por LDAP con Buscador por Nombre */}

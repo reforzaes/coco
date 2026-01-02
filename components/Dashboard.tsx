@@ -96,13 +96,13 @@ const Dashboard: React.FC<DashboardProps> = ({
 
       {/* Secciones de Tablas de Profesionales (ABAJO) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border">
-          <h2 className="text-xl font-black mb-10 text-gray-800 uppercase tracking-tighter flex items-center gap-4">
+        <div className="bg-white p-6 md:p-10 rounded-[3.5rem] shadow-sm border overflow-hidden">
+          <h2 className="text-xl font-black mb-8 text-gray-800 uppercase tracking-tighter flex items-center gap-4">
             <span className="w-4 h-4 bg-emerald-500 rounded-full"></span>
             Resumen Vendedores (Histórico)
           </h2>
-          <div className="overflow-hidden rounded-[2.5rem] border border-gray-50">
-            <table className="min-w-full divide-y divide-gray-100">
+          <div className="overflow-x-auto rounded-[2.5rem] border border-gray-50">
+            <table className="min-w-[500px] md:min-w-full divide-y divide-gray-100">
               <thead className="bg-gray-50 text-[10px] font-black uppercase text-gray-400">
                 <tr>
                   <th className="px-6 py-5 text-left">Vendedor</th>
@@ -118,10 +118,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                     className="hover:bg-emerald-50 cursor-pointer transition-all active:scale-[0.98] group"
                     onClick={() => onOpenDrilldown('seller', data.label)}
                   >
-                    <td className="px-6 py-5 font-bold text-gray-700 group-hover:text-emerald-700">{data.label}</td>
+                    <td className="px-6 py-5 font-bold text-gray-700 group-hover:text-emerald-700 whitespace-nowrap">{data.label}</td>
                     <td className="px-6 py-5 text-center text-emerald-600 font-black">{data.totalKitchens}</td>
                     <td className="px-6 py-5 text-center text-red-600 font-black">{data.incidents}</td>
-                    <td className="px-6 py-5 text-right text-gray-400 font-bold">{data.incidencePercentage.toFixed(1)}%</td>
+                    <td className="px-6 py-5 text-right text-gray-400 font-bold whitespace-nowrap">{data.incidencePercentage.toFixed(1)}%</td>
                   </tr>
                 ))}
               </tbody>
@@ -129,13 +129,13 @@ const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
 
-        <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border">
-          <h2 className="text-xl font-black mb-10 text-gray-800 uppercase tracking-tighter flex items-center gap-4">
+        <div className="bg-white p-6 md:p-10 rounded-[3.5rem] shadow-sm border overflow-hidden">
+          <h2 className="text-xl font-black mb-8 text-gray-800 uppercase tracking-tighter flex items-center gap-4">
             <span className="w-4 h-4 bg-blue-500 rounded-full"></span>
             Resumen Instaladores (Histórico)
           </h2>
-          <div className="overflow-hidden rounded-[2.5rem] border border-gray-50">
-            <table className="min-w-full divide-y divide-gray-100">
+          <div className="overflow-x-auto rounded-[2.5rem] border border-gray-50">
+            <table className="min-w-[500px] md:min-w-full divide-y divide-gray-100">
               <thead className="bg-gray-50 text-[10px] font-black uppercase text-gray-400">
                 <tr>
                   <th className="px-6 py-5 text-left">Instalador</th>
@@ -151,10 +151,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                     className="hover:bg-blue-50 cursor-pointer transition-all active:scale-[0.98] group"
                     onClick={() => onOpenDrilldown('installer', data.label)}
                   >
-                    <td className="px-6 py-5 font-bold text-gray-700 group-hover:text-blue-700">{data.label}</td>
+                    <td className="px-6 py-5 font-bold text-gray-700 group-hover:text-blue-700 whitespace-nowrap">{data.label}</td>
                     <td className="px-6 py-5 text-center text-blue-600 font-black">{data.totalKitchens}</td>
                     <td className="px-6 py-5 text-center text-red-600 font-black">{data.incidents}</td>
-                    <td className="px-6 py-5 text-right text-gray-400 font-bold">{data.incidencePercentage.toFixed(1)}%</td>
+                    <td className="px-6 py-5 text-right text-gray-400 font-bold whitespace-nowrap">{data.incidencePercentage.toFixed(1)}%</td>
                   </tr>
                 ))}
               </tbody>
